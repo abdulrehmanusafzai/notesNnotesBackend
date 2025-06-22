@@ -65,7 +65,7 @@ router.post('/verify-otp', async (req, res) => {
         }
 
         const salt = await bcrypt.genSalt(10);
-        const secPass = bcrypt.hash(record.password, salt);
+        const secPass = await bcrypt.hash(record.password, salt);
 
         const user = await User.create({
             name: record.name,
