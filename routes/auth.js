@@ -49,7 +49,7 @@ router.post('/createuser', [
         res.status(200).json({success: true, message: "OTP sent to your email"})
     } catch (error) {
         console.error(error.message);
-        res.status(500).send("Some error occured");
+        res.status(500).send({success: false, error});
     }
 })
 
@@ -58,10 +58,10 @@ router.post('/verify-otp', async (req, res) => {
     const { email, otp } = req.body;
     try {
         const record = await Otp.findOne({ email, otp: Number(otp) });
-        if (!record) return res.status(400).send("Invalid OTP");
+        if (!record) return res.status(400).send({success: false, error: "Invalid OTP"});
         if (record.expiresAt < Date.now()) {
             await Otp.deleteOne({ _id: record._id });
-            return res.status(400).send("OTP Expired")
+            return res.status(400).send({success: false, error: "OTP Expired"})
         }
 
         const salt = await bcrypt.genSalt(10);
@@ -86,7 +86,7 @@ router.post('/verify-otp', async (req, res) => {
         res.json({ success: true, authtoken });
     } catch (error) {
         console.error(error.message);
-        res.status(500).send("Internal server error");
+        res.status(500).send({success: false, error});
     }
 })
 
@@ -124,7 +124,7 @@ router.post('/login', [
 
     } catch (error) {
         console.error(error.message);
-        res.status(500).send("Internal server error");
+        res.status(500).send({success: false, error});
     }
 })
 
@@ -136,7 +136,7 @@ router.post('/getuser', fetchuser, async (req, res) => {
         res.send(user);
     } catch (error) {
         console.error(error.message);
-        res.status(500).send("Internal server error");
+        res.status(500).send({success: false, error});
     }
 })
 
